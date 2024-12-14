@@ -8,3 +8,9 @@ it is a proof of concept to be able to upload a pdf and chat with it.
 - Python 3.9
 - Langchain
 - Chroma
+
+### Hello world Chroma
+- What is Chroma
+- Why is Chroma
+- How to Chroma
+- What is metadata filtering
