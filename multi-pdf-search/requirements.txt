@@ -1,20 +1,5 @@
-# LangChain for chain-of-thought and retrieval logic
-langchain==0.0.208
-
-# Local LLM integration for Llama-based models (llama.cpp)
-llama-cpp-python==0.1.63
-
-# FAISS (CPU) for local vector storage of embeddings
-faiss-cpu>=1.7.4
-
-# For reading PDF files (alternative: PyMuPDF, if you prefer)
-pypdf>=3.8.1
-
 # Streamlit for building the web UI
 streamlit>=1.24.0
-
-# For making REST requests (if interacting with Ollama’s REST API)
-requests>=2.28.0
 
 # For loading environment variables from .env files (optional)
 python-dotenv>=1.0.0
