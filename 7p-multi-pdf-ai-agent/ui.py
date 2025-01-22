@@ -6,6 +6,7 @@ import streamlit as st
 from streamlit_chat import message
 from dotenv import load_dotenv
 from htmlTemplates import css, bot_template, user_template
+from backend import ProcessPDF
 
 def display_messages():
     st.subheader("Chat")
@@ -53,9 +54,9 @@ def read_and_save_file():
 
 def main():
     load_dotenv()
-    #if len(st.session_state) == 0:
-    #    st.session_state["messages"] = []
-    #    st.session_state["assistant"] = ChatPDF()
+    if len(st.session_state) == 0:
+        st.session_state["messages"] = []
+        st.session_state["assistant"] = ProcessPDF()
 
     st.set_page_config(page_title="Chat with multiple PDFs",
                        page_icon=":books:")
@@ -74,8 +75,8 @@ def main():
 
     with st.sidebar:
         st.subheader("Your documents")
-        pdf_docs = st.file_uploader(
-            "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
+        #pdf_docs = st.file_uploader(
+        #    "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
         
         st.file_uploader(
         "Upload your PDFs here and click on 'Process'",
@@ -85,20 +86,9 @@ def main():
         label_visibility="collapsed",
         accept_multiple_files=True,
     )
-        if st.button("Process"):
-            with st.spinner("Processing"):
-                # get pdf text
-                raw_text = get_pdf_text(pdf_docs)
-
-                # get the text chunks
-                text_chunks = get_text_chunks(raw_text)
-
-                # create vector store
-                vectorstore = get_vectorstore(text_chunks)
-
-                # create conversation chain
-                st.session_state.conversation = get_conversation_chain(
-                    vectorstore)
+        #if st.button("Process"):
+        #    with st.spinner("Processing"):
+                
 
 
 if __name__ == '__main__':
