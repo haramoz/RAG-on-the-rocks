@@ -8,8 +8,21 @@ from dotenv import load_dotenv
 from htmlTemplates import css, bot_template, user_template
 from backend import ProcessPDF
 
+
+def handle_userinput(user_question):
+    response = st.session_state.conversation({'question': user_question})
+    st.session_state.chat_history = response['chat_history']
+
+    for i, message in enumerate(st.session_state.chat_history):
+        if i % 2 == 0:
+            st.write(user_template.replace(
+                "{{MSG}}", message.content), unsafe_allow_html=True)
+        else:
+            st.write(bot_template.replace(
+                "{{MSG}}", message.content), unsafe_allow_html=True)
+
 def display_messages():
-    st.subheader("Chat")
+    #st.subheader("Chat")
     for i, (msg, is_user) in enumerate(st.session_state["messages"]):
         message(msg, is_user=is_user, key=str(i))
     st.session_state["thinking_spinner"] = st.empty()
@@ -69,7 +82,12 @@ def main():
 
     st.header("Chat with multiple PDFs :books:")
     #user_question = st.text_input("Ask a question about your documents:")
-    st.text_input("Ask a question about your documents:", key="user_input", on_change=process_input)
+    st.text_input("Ask a question about your documents:", key="user_input")
+
+    if st.button("Enter"):
+        process_input()
+
+    st.session_state["ingestion_spinner"] = st.empty()
 
     display_messages()
 

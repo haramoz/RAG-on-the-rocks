@@ -21,7 +21,7 @@ class ProcessPDF:
     retriever = None
     chain = None
 
-    def __init__(self, llm_model: str = "mistral"):
+    def __init__(self, llm_model: str = "llama3.2"):
         self.model = ChatOllama(model=llm_model)
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1024, chunk_overlap=100
@@ -53,6 +53,11 @@ class ProcessPDF:
             embedding=FastEmbedEmbeddings(),
             persist_directory="chroma_db",
         )
+        
+        # embeddings = OpenAIEmbeddings()
+        # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+        # vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+
 
     def ask(self, query: str):
         if not self.vector_store:
