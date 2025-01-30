@@ -1,4 +1,5 @@
 #!/bin/env python3
+import sys
 import os
 import time
 import tempfile
@@ -6,7 +7,10 @@ import streamlit as st
 from streamlit_chat import message
 from dotenv import load_dotenv
 from htmlTemplates import css, bot_template, user_template
-from backend import ProcessPDF
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from backend.naive_rag import ProcessPDF
 
 
 def handle_userinput(user_question):
@@ -71,7 +75,7 @@ def main():
         st.session_state["messages"] = []
         st.session_state["assistant"] = ProcessPDF()
 
-    st.set_page_config(page_title="Chat with multiple PDFs",
+    st.set_page_config(page_title="Chat with 7P Docs",
                        page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
 
