@@ -60,10 +60,16 @@ class ProcessPDF:
 
 
     def ask(self, query: str):
+
+        ### Try Catch
+        ### Proper logging
+        ### Guard rails
         if not self.vector_store:
             self.vector_store = Chroma(
                 persist_directory="chroma_db", embedding=FastEmbedEmbeddings()
             )
+        else:
+            print("logging, I am here!")
 
         self.retriever = self.vector_store.as_retriever(
             search_type="similarity_score_threshold",
