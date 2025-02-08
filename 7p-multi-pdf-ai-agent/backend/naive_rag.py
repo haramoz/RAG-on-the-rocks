@@ -10,6 +10,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
 from langchain_community.vectorstores.utils import filter_complex_metadata
 from langchain_core.prompts import ChatPromptTemplate
+from chunking_strategy import TextChunker, RecursiveChunkingStrategy, SemanticChunkingStrategy
+
 
 
 set_debug(True)
@@ -26,6 +28,18 @@ class ProcessPDF:
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1024, chunk_overlap=100
         )
+
+        recursive_strategy = RecursiveChunkingStrategy(chunk_size=1024, chunk_overlap=100)
+        chunker = TextChunker(strategy=recursive_strategy)
+
+        # Or use semantic chunking
+        #semantic_strategy = SemanticChunkingStrategy(model='en_core_web_sm', chunk_size=1024)
+        #chunker.set_strategy(semantic_strategy)
+
+        text = "Your long text goes here..."
+        chunks = chunker.chunk_text(text)
+        print(chunks)
+
         self.prompt = ChatPromptTemplate(
             [
                 (
@@ -45,11 +59,27 @@ class ProcessPDF:
 
     def ingest(self, pdf_file_path: str):
         docs = PyPDFLoader(file_path=pdf_file_path).load()
-        chunks = self.text_splitter.split_documents(docs)
-        chunks = filter_complex_metadata(chunks)
+        #chunks = self.text_splitter.split_documents(docs)
+        #chunks = filter_complex_metadata(chunks)
 
+        chunker = TextChunker(RecursiveChunkingStrategy(chunk_size=1024, chunk_overlap=100))
+
+
+        all_chunks = []
+        for doc in docs:
+            # Assume that each doc has a 'page_content' attribute containing its text.
+            text_chunks = chunker.chunk_text(doc.page_content)
+            # Create a new Document for each chunk, preserving the original metadata.
+            for chunk in text_chunks:
+                new_doc = Document(page_content=chunk, metadata=doc.metadata)
+                all_chunks.append(new_doc)
+    
+        # Optionally filter or clean metadata from the chunks.
+        all_chunks = filter_complex_metadata(all_chunks)
+        
+        # Build the vector store from the chunked documents.
         self.vector_store = Chroma.from_documents(
-            documents=chunks,
+            documents=all_chunks,
             embedding=FastEmbedEmbeddings(),
             persist_directory="chroma_db",
         )
