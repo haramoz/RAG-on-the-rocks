@@ -6,7 +6,10 @@ pyenv activate rag-on-the-rocks
 
 pip install -r requirements.txt
 
-ollama run mistral
+ollama run mistral / llama3.2
+
+python -m spacy download en_core_web_sm
+
 
 
 ## Reference

@@ -6,11 +6,13 @@ from langchain_community.chat_models import ChatOllama
 from langchain_community.embeddings import FastEmbedEmbeddings
 from langchain.schema.output_parser import StrOutputParser
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+#from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
 from langchain_community.vectorstores.utils import filter_complex_metadata
 from langchain_core.prompts import ChatPromptTemplate
-from chunking_strategy import TextChunker, RecursiveChunkingStrategy, SemanticChunkingStrategy
+from backend.chunking_strategy import TextChunker, RecursiveChunkingStrategy, SemanticChunkingStrategy
+from langchain.docstore.document import Document
+
 
 
 
@@ -25,16 +27,17 @@ class ProcessPDF:
 
     def __init__(self, llm_model: str = "llama3.2"):
         self.model = ChatOllama(model=llm_model)
-        self.text_splitter = RecursiveCharacterTextSplitter(
+        """self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1024, chunk_overlap=100
-        )
+        )"""
 
-        recursive_strategy = RecursiveChunkingStrategy(chunk_size=1024, chunk_overlap=100)
-        chunker = TextChunker(strategy=recursive_strategy)
+        #recursive_strategy = RecursiveChunkingStrategy(chunk_size=1024, chunk_overlap=100)
+        #chunker = TextChunker(strategy=recursive_strategy)
 
-        # Or use semantic chunking
-        #semantic_strategy = SemanticChunkingStrategy(model='en_core_web_sm', chunk_size=1024)
+        # To use semantic chunking
+        semantic_strategy = SemanticChunkingStrategy(model='en_core_web_sm', chunk_size=1024)
         #chunker.set_strategy(semantic_strategy)
+        chunker = TextChunker(strategy=semantic_strategy)
 
         text = "Your long text goes here..."
         chunks = chunker.chunk_text(text)
@@ -67,17 +70,14 @@ class ProcessPDF:
 
         all_chunks = []
         for doc in docs:
-            # Assume that each doc has a 'page_content' attribute containing its text.
             text_chunks = chunker.chunk_text(doc.page_content)
             # Create a new Document for each chunk, preserving the original metadata.
             for chunk in text_chunks:
                 new_doc = Document(page_content=chunk, metadata=doc.metadata)
                 all_chunks.append(new_doc)
     
-        # Optionally filter or clean metadata from the chunks.
-        all_chunks = filter_complex_metadata(all_chunks)
+        #all_chunks = filter_complex_metadata(all_chunks)
         
-        # Build the vector store from the chunked documents.
         self.vector_store = Chroma.from_documents(
             documents=all_chunks,
             embedding=FastEmbedEmbeddings(),

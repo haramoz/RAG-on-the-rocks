@@ -13,3 +13,4 @@ langchain-chroma
 langsmith==0.1.125
 pillow==10.4.0
 fastembed
+spacy
